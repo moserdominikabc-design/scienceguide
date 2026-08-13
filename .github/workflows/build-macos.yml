@@ -12,6 +12,11 @@ permissions:
 jobs:
   build-macos:
     runs-on: macos-latest
+
+    defaults:
+      run:
+        working-directory: scienceguide_excel_cleaner
+
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -20,7 +25,6 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: "pip"
 
       - name: Install build dependencies
         run: python -m pip install -r requirements-build.txt
@@ -34,6 +38,7 @@ jobs:
             --name "ScienceGuide Excel Cleaner" \
             --osx-bundle-identifier "ch.scnat.scienceguide.excelcleaner" \
             app.py
+
           ditto -c -k --sequesterRsrc --keepParent \
             "dist/ScienceGuide Excel Cleaner.app" \
             "dist/ScienceGuide-Excel-Cleaner-macOS.zip"
@@ -42,5 +47,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ScienceGuide-Excel-Cleaner-macOS
-          path: dist/ScienceGuide-Excel-Cleaner-macOS.zip
+          path: scienceguide_excel_cleaner/dist/ScienceGuide-Excel-Cleaner-macOS.zip
           if-no-files-found: error

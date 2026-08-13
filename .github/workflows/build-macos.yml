@@ -47,6 +47,6 @@ jobs:
       - name: Upload macOS app
         uses: actions/upload-artifact@v7
         with:
-          name: ScienceGuide-Excel-Cleaner-macOS
           path: dist/ScienceGuide-Excel-Cleaner-macOS.zip
+          archive: false
           if-no-files-found: error

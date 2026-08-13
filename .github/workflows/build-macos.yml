@@ -1,0 +1,52 @@
+name: Build macOS app
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install build dependencies
+        run: python -m pip install -r requirements-build.txt
+
+      - name: Verify source and UI imports
+        run: |
+          python -m py_compile app.py excel_processing.py factory_columns.py user_defaults.py
+          python -m unittest -v
+          python -c 'import tkinter; import app; print("Tkinter/app import OK")'
+
+      - name: Build macOS app
+        run: |
+          python -m PyInstaller \
+            --noconfirm \
+            --clean \
+            --windowed \
+            --name "ScienceGuide Excel Cleaner" \
+            --osx-bundle-identifier "ch.scnat.scienceguide.excelcleaner" \
+            app.py
+          ditto -c -k --sequesterRsrc --keepParent \
+            "dist/ScienceGuide Excel Cleaner.app" \
+            "dist/ScienceGuide-Excel-Cleaner-macOS.zip"
+
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v7
+        with:
+          name: ScienceGuide-Excel-Cleaner-macOS
+          path: dist/ScienceGuide-Excel-Cleaner-macOS.zip
+          if-no-files-found: error
